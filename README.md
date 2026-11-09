@@ -4,7 +4,7 @@ A backend system for discovering, researching, and scoring international
 remote clients and projects — web development, redesign, landing pages,
 UI/UX, branding, and related digital services — for a freelance business.
 
-**Status:** Specification finalized. Implementation has not started yet.
+**Status:** Phase 1 implemented (discovery, research, scoring, API, CLI); under review.
 See [PROJECT_STATUS.md](./PROJECT_STATUS.md) for the current state.
 
 ## What this is (eventually)
@@ -34,8 +34,7 @@ httpx, BeautifulSoup4, Playwright (where needed), pytest, Ruff, MyPy.
 
 ## Getting started
 
-Implementation hasn't started, so the steps below describe the intended
-setup once Phase 1 lands — not a working system yet.
+
 
 ```bash
 git clone <repo-url>
@@ -47,7 +46,7 @@ uv run alembic upgrade head
 uv run fastapi dev app/main.py
 ```
 
-CLI (planned):
+CLI:
 
 ```bash
 uv run python -m app.cli discover --query "SaaS startups"

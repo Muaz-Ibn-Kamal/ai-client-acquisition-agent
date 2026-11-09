@@ -11,47 +11,54 @@ are tracked together. See Permanent Rules & Architecture → Development
 Sequence, and docs/PHASE_1_SPECIFICATION.md for the definitive scope.)
 
 ## Overall Status
-PHASE 1 IN PROGRESS — Foundation done; Lead Hunter data layer, scoring engine and
-companies/leads API done and tested. Discovery providers, website research,
-/discover /research /score endpoints and the CLI are NOT implemented.
+PHASE 1 FEATURE-COMPLETE PENDING REVIEW — foundation, data layer, scoring,
+discovery providers, SSRF-safe research, API and CLI are implemented and
+tested. Open items are listed under "Not Started / Open" below.
 
 Correction (2026-11-10): earlier notes claimed the Lead Hunter layer was
-complete. The repository only contained the foundation (health endpoint, DB
-session, empty initial migration), so this file now reflects the repo.
+complete before it existed. This file reflects the repository.
 
 ## Repository
 https://github.com/Muaz-Ibn-Kamal/ai-client-acquisition-agent
-Work branch: feat/phase1-data-layer-scoring (not merged to main yet).
+Branches (not merged to main yet; review in order):
+1. feat/phase1-data-layer-scoring — data model, scoring engine, companies/leads API
+2. feat/phase1-discovery-research — discovery providers, fetcher, analyzer, research,
+   /discover /research /score, CLI (stacked on 1)
 
-## Completed (verified)
+## Completed (verified 2026-11-10: pytest 90 passed, ruff clean, mypy clean,
+## alembic check clean, migration up/down/up OK on local PostgreSQL 16)
 
 - Foundation: FastAPI skeleton, config, logging, async DB session, Alembic
-- Data model + migration 64a3e2e8c928: companies, contacts (with provenance,
-  suppression-ready and retention fields), lead_sources, leads, opportunities
-  (evidence-first, FACT/INFERENCE/UNKNOWN), website_analysis, lead_scores
+- Data model + migration: companies, contacts (provenance, suppression-ready,
+  retention fields), lead_sources, leads, opportunities (evidence-first,
+  FACT/INFERENCE/UNKNOWN), website_analysis, lead_scores
 - Domain normalization + company dedup (unique normalized domain)
-- Deterministic scoring engine (6 components, 100 points, configurable
-  weights, per-factor reasons, confidence, unknown = 0 points)
-- API: POST/GET /companies, GET /companies/{id}, POST/GET /leads,
-  GET /leads/{id} with pagination and filters (min_score, country, service,
-  status), ranking by latest score
-- Verification run 2026-11-10 against local PostgreSQL 16: pytest 50 passed,
-  ruff clean, mypy clean, `alembic upgrade head` / `downgrade base` / `upgrade
-  head` round trip OK, `alembic check` reports no drift
+- Deterministic scoring engine (6 components, 100 points, configurable weights,
+  per-factor reasons, confidence; unknown = 0 points, never guessed)
+- Signal derivation from research (only observable factors) + analyst overrides
+- Discovery providers: manual, CSV import, Google Places (mocked tests only)
+- SSRF-safe fetcher: public-IP checks on every hop, manual redirects (max 3),
+  robots.txt, size cap, content-type check, timeouts
+- Website analyzer: title/meta/headings/nav/tech/viewport/CTA/alt text/public
+  contacts, each insight with evidence, source URL, confidence, label
+- Research service: persists analysis, company-domain public contacts (with
+  provenance) and opportunities; page content is treated as inert data
+- API: /companies, /leads (filters, pagination, ranking), /discover,
+  /research/{company_id}, /score/{lead_id}, /health. No outreach endpoints.
+- CLI: discover, research, score, top-leads
+- Live smoke test: CLI discover (CSV) -> research -> score against
+  https://example.com worked end to end. It also exposed a gzip double-decode
+  bug in the fetcher that mocked tests missed; fixed with a regression test.
 
-## In Progress
+## Not Started / Open (Phase 1)
 
-None.
-
-## Not Started (Phase 1)
-
-- Discovery provider architecture and specific sources (major decision —
-  needs approval before implementation)
-- Website retrieval/parsing, tech detection, SSRF-safe fetcher (Step: research)
-- Opportunity detection from research; AI structured-output validation
-- POST /discover, POST /research/{company_id}, POST /score/{lead_id}
-- CLI (discover, research, score, top-leads)
-- Basic CI
+- Google Places provider has NOT been run against the live API (needs a key)
+- No LLM layer yet, so "AI structured-output validation" tests do not apply;
+  Insight validation is tested instead
+- No Playwright rendering (JS-only sites will look empty to the analyzer)
+- Only the homepage is fetched (no multi-page crawl, no broken-link check)
+- Basic CI not set up
+- Tests require a reachable PostgreSQL server (they create `<db>_test`)
 
 ## Not Started (later phases)
 
@@ -61,15 +68,10 @@ None.
 - Phase 5 — CRM Dashboard
 - Phase 6 — Production Deployment
 
-## Known Issues / Notes
-
-- Tests need a reachable PostgreSQL server (they create `<db>_test`).
-- Scoring signals are supplied by callers; nothing computes them from research yet.
-
 ## Next Task
 
-Decide the lead discovery provider(s), then implement the SSRF-safe website
-fetcher and research service.
+Review/merge both branches, add GitHub Actions CI, then (with approval) either
+validate Google Places with a real key or begin Phase 2.
 
 ## Rules
 

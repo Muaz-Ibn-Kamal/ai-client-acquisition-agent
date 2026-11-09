@@ -28,6 +28,17 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/client_acquisition"
 
+    # Outbound fetching (website research). See docs/PHASE_1_SPECIFICATION.md §10.
+    fetch_timeout_seconds: float = 10.0
+    fetch_max_bytes: int = 1_000_000
+    fetch_max_redirects: int = 3
+    fetch_user_agent: str = (
+        "ClientAcquisitionResearchBot/0.1 (+business research; respects robots.txt)"
+    )
+
+    # Optional discovery provider credentials. Providers are disabled when unset.
+    google_places_api_key: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

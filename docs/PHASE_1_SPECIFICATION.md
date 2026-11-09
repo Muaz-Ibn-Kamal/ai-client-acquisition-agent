@@ -203,8 +203,8 @@ uv run python -m app.cli score --lead-id <UUID>
 uv run python -m app.cli top-leads --min-score 80
 ```
 
-Adapt exact command names/flags to the implemented architecture; keep this
-file updated if they change.
+Implemented flags: `discover --provider csv|google_places [--csv-file F] [--query Q]
+[--limit N]`, `research --company-id`, `score --lead-id`, `top-leads [--min-score N]`.
 
 ---
 
