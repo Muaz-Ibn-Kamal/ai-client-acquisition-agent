@@ -11,51 +11,65 @@ are tracked together. See Permanent Rules & Architecture → Development
 Sequence, and docs/PHASE_1_SPECIFICATION.md for the definitive scope.)
 
 ## Overall Status
-SPECIFICATION FINALIZED — IMPLEMENTATION NOT STARTED
+PHASE 1 IN PROGRESS — Foundation done; Lead Hunter data layer, scoring engine and
+companies/leads API done and tested. Discovery providers, website research,
+/discover /research /score endpoints and the CLI are NOT implemented.
+
+Correction (2026-11-10): earlier notes claimed the Lead Hunter layer was
+complete. The repository only contained the foundation (health endpoint, DB
+session, empty initial migration), so this file now reflects the repo.
 
 ## Repository
-Not yet created. Per project decision, source code will live in a local Git
-repository connected to GitHub, worked on primarily through Claude Code.
-This file becomes authoritative once that repository exists (see "Status
-Authority" under Rules, below). Until then, this is the working record,
-mirrored in Project Knowledge.
+https://github.com/Muaz-Ibn-Kamal/ai-client-acquisition-agent
+Work branch: feat/phase1-data-layer-scoring (not merged to main yet).
 
-## Completed
+## Completed (verified)
 
-- Project created
-- Claude Project configured
-- Master project instructions created
-- Setup audit performed (contradictions, gaps, and risks identified)
-- Project constitution finalized (Permanent Rules & Architecture updated to
-  resolve every audit finding)
-- Phase 1 specification finalized (docs/PHASE_1_SPECIFICATION.md — scope,
-  tech stack, architecture, database, API, CLI, discovery, research,
-  scoring model, security, testing, documentation, explicit non-goals)
-- Lead scoring model finalized (single authoritative 6-component model, all
-  prior informal factors mapped in)
-- Data privacy/provenance foundation defined for Phase 1's data model
-- Repository & persistence strategy decided (GitHub + Claude Code; Postgres
-  via Docker locally in Phase 1, production database configured separately
-  in Phase 6)
+- Foundation: FastAPI skeleton, config, logging, async DB session, Alembic
+- Data model + migration 64a3e2e8c928: companies, contacts (with provenance,
+  suppression-ready and retention fields), lead_sources, leads, opportunities
+  (evidence-first, FACT/INFERENCE/UNKNOWN), website_analysis, lead_scores
+- Domain normalization + company dedup (unique normalized domain)
+- Deterministic scoring engine (6 components, 100 points, configurable
+  weights, per-factor reasons, confidence, unknown = 0 points)
+- API: POST/GET /companies, GET /companies/{id}, POST/GET /leads,
+  GET /leads/{id} with pagination and filters (min_score, country, service,
+  status), ranking by latest score
+- Verification run 2026-11-10 against local PostgreSQL 16: pytest 50 passed,
+  ruff clean, mypy clean, `alembic upgrade head` / `downgrade base` / `upgrade
+  head` round trip OK, `alembic check` reports no drift
 
 ## In Progress
 
-None. No application code has been written yet.
+None.
 
-## Not Started
+## Not Started (Phase 1)
 
-- Repository creation and initial scaffolding
-- Phase 1 implementation (foundation + lead discovery + company research +
-  lead scoring + API + CLI)
+- Discovery provider architecture and specific sources (major decision —
+  needs approval before implementation)
+- Website retrieval/parsing, tech detection, SSRF-safe fetcher (Step: research)
+- Opportunity detection from research; AI structured-output validation
+- POST /discover, POST /research/{company_id}, POST /score/{lead_id}
+- CLI (discover, research, score, top-leads)
+- Basic CI
+
+## Not Started (later phases)
+
 - Phase 2 — Proposal Engine
 - Phase 3 — Outreach Engine
 - Phase 4 — WhatsApp AI
 - Phase 5 — CRM Dashboard
 - Phase 6 — Production Deployment
 
-## Current Task
+## Known Issues / Notes
 
-Awaiting approval to begin Phase 1 implementation.
+- Tests need a reachable PostgreSQL server (they create `<db>_test`).
+- Scoring signals are supplied by callers; nothing computes them from research yet.
+
+## Next Task
+
+Decide the lead discovery provider(s), then implement the SSRF-safe website
+fetcher and research service.
 
 ## Rules
 

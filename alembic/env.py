@@ -12,6 +12,7 @@ from alembic import context
 # Make the app package importable regardless of where alembic is invoked from.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import app.models  # noqa: E402,F401  (registers tables on Base.metadata)
 from app.core.config import get_settings  # noqa: E402
 from app.db.base import Base  # noqa: E402
 
@@ -29,8 +30,6 @@ config.set_main_option("sqlalchemy.url", get_settings().database_url)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Business models are added here as they're created (see
-# docs/PHASE_1_SPECIFICATION.md §4). Foundation stage defines no models yet.
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

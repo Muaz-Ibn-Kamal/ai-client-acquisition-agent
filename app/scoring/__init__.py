@@ -1,6 +1,21 @@
-"""Deterministic lead scoring engine.
+from app.scoring.engine import (
+    COMPONENT_FACTORS,
+    ComponentResult,
+    FactorSignal,
+    ScoreResult,
+    ScoringSignals,
+    ScoringWeights,
+    classify,
+    score_lead,
+)
 
-Not implemented in the Foundation stage. See
-docs/PHASE_1_SPECIFICATION.md §9 for the definitive scoring model this
-package will implement.
-"""
+__all__ = [
+    "COMPONENT_FACTORS",
+    "ComponentResult",
+    "FactorSignal",
+    "ScoreResult",
+    "ScoringSignals",
+    "ScoringWeights",
+    "classify",
+    "score_lead",
+]
